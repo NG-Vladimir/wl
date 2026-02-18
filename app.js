@@ -420,12 +420,12 @@
   }
 
   function sendReportToBot(payload) {
-    payload.ready_to_send = true;
-    const data = JSON.stringify(payload);
+    const out = { ...payload, ready_to_send: true };
+    const data = JSON.stringify(out);
     if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
       window.Telegram.WebApp.sendData(data);
     } else {
-      alert('Отчёт сформирован. Откройте мини-приложение из Telegram — бот предложит выбрать, кому отправить график.\n\nТекст отчёта:\n' + (payload.text || '').slice(0, 500) + (payload.text && payload.text.length > 500 ? '…' : ''));
+      alert('Отчёт сформирован. Откройте мини-приложение из Telegram — бот предложит выбрать, кому отправить график.\n\nТекст отчёта:\n' + (out.text || '').slice(0, 500) + (out.text && out.text.length > 500 ? '…' : ''));
     }
   }
 
@@ -453,9 +453,11 @@
       roles: ROLES,
       text
     });
-    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-      window.Telegram.WebApp.showPopup({ title: 'Готово', message: 'Выберите в боте, кому отправить график на месяц.' });
-    }
+    try {
+      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.showPopup) {
+        window.Telegram.WebApp.showPopup({ title: 'Готово', message: 'Выберите в боте, кому отправить график на месяц.' });
+      }
+    } catch (err) { /* popup не поддерживается */ }
   }
 
   function reportWeek() {
@@ -475,9 +477,11 @@
       roles: ROLES,
       text
     });
-    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-      window.Telegram.WebApp.showPopup({ title: 'Готово', message: 'Выберите в боте, кому отправить график на неделю.' });
-    }
+    try {
+      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.showPopup) {
+        window.Telegram.WebApp.showPopup({ title: 'Готово', message: 'Выберите в боте, кому отправить график на неделю.' });
+      }
+    } catch (err) { /* popup не поддерживается */ }
   }
 
   function openScheduleWithPassword() {
@@ -553,6 +557,10 @@
 
   $('expand-all').addEventListener('click', expandAll);
   $('collapse-all').addEventListener('click', collapseAll);
-  $('report-month').addEventListener('click', reportMonth);
-  $('report-week').addEventListener('click', reportWeek);
+
+  // Кнопки отчётов — прямая привязка (элементы уже в DOM в конце body)
+  var reportMonthEl = document.getElementById('report-month');
+  var reportWeekEl = document.getElementById('report-week');
+  if (reportMonthEl) reportMonthEl.addEventListener('click', function (e) { e.preventDefault(); reportMonth(); });
+  if (reportWeekEl) reportWeekEl.addEventListener('click', function (e) { e.preventDefault(); reportWeek(); });
 })();
