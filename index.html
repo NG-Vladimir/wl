@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Мини-приложение</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Telegram Web App SDK (опционально, для бота) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <!-- Главный экран -->
+  <main id="screen-main" class="screen active">
+    <div class="main-glass">
+      <div class="menu">
+      <button type="button" class="menu-item" data-action="schedule">
+        <span class="menu-icon menu-icon-svg" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        <span class="menu-text">Расписание</span>
+      </button>
+      <button type="button" class="menu-item" data-action="songs">
+        <span class="menu-icon menu-icon-svg" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </span>
+        <span class="menu-text">Песни</span>
+      </button>
+      <button type="button" class="menu-item" data-action="settings">
+        <span class="menu-icon menu-icon-svg" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="menu-text">Настройки</span>
+      </button>
+    </div>
+    </div>
+  </main>
+
+  <!-- Экран Расписание -->
+  <main id="screen-schedule" class="screen">
+    <header class="schedule-header">
+      <button type="button" class="btn-close" id="btn-close-schedule">✕ Закрыть</button>
+      <button type="button" class="btn-back" id="btn-back-schedule">← Назад</button>
+      <div class="header-actions">
+        <button type="button" class="icon-btn" aria-label="Ещё">▾</button>
+        <button type="button" class="icon-btn" aria-label="Меню">⋯</button>
+      </div>
+    </header>
+
+    <div class="schedule-content">
+      <h1 class="schedule-title">Расписание</h1>
+      <p class="schedule-hint">Нажми «пусто» — записаться.</p>
+      <p class="schedule-hint">Нажми свой слот — отменить.</p>
+
+      <div class="month-nav">
+        <button type="button" class="month-arrow" id="month-prev" aria-label="Предыдущий месяц">‹</button>
+        <span class="month-label" id="month-label">Февраль 2026</span>
+        <button type="button" class="month-arrow" id="month-next" aria-label="Следующий месяц">›</button>
+      </div>
+
+      <div class="expand-buttons">
+        <button type="button" class="btn-expand" id="expand-all">Развернуть всё</button>
+        <button type="button" class="btn-expand" id="collapse-all">Свернуть всё</button>
+      </div>
+
+      <div class="report-buttons">
+        <button type="button" class="btn-report" id="report-month">График на весь месяц</button>
+        <button type="button" class="btn-report" id="report-week">График на ближайшую неделю</button>
+      </div>
+
+      <ul class="dates-list" id="dates-list"></ul>
+    </div>
+  </main>
+
+  <!-- Экран выбора участника и роли (после нажатия «Записаться») -->
+  <main id="screen-role" class="screen">
+    <header class="schedule-header">
+      <button type="button" class="btn-back" id="btn-back-role">← Назад</button>
+    </header>
+    <div class="role-content">
+      <h2 class="role-title" id="role-screen-title">Выберите участника</h2>
+      <p class="role-date" id="selected-date-text"></p>
+      <div id="step-users">
+        <div class="users-list" id="users-list"></div>
+        <p class="role-hint" id="no-users-hint">Добавьте участников в Настройках.</p>
+      </div>
+      <div id="step-backvocal" class="hidden">
+        <p class="role-hint">Выберите от 1 до 3 человек из списка:</p>
+        <p class="backvocal-count" id="backvocal-count">Выбрано: 0 из 3</p>
+        <div class="users-list" id="backvocal-users-list"></div>
+        <button type="button" class="btn-backvocal-save" id="backvocal-save">Сохранить</button>
+      </div>
+      <div id="step-roles" class="hidden">
+        <p class="role-subtitle" id="selected-user-text"></p>
+        <div class="roles-list" id="roles-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Экран Песни (заглушка) -->
+  <main id="screen-songs" class="screen">
+    <header class="schedule-header">
+      <button type="button" class="btn-back" id="btn-back-songs">← Назад</button>
+    </header>
+    <div class="placeholder-content">
+      <p>Песни — скоро</p>
+    </div>
+  </main>
+
+  <!-- Экран Настройки -->
+  <main id="screen-settings" class="screen">
+    <header class="schedule-header">
+      <button type="button" class="btn-back" id="btn-back-settings">← Назад</button>
+    </header>
+    <div class="settings-content">
+      <h2 class="settings-title">Участники</h2>
+      <p class="settings-hint">Добавьте имена — их можно будет ставить в расписании на роли.</p>
+      <div class="settings-add">
+        <input type="text" class="settings-input" id="settings-user-name" placeholder="Имя участника" maxlength="80">
+        <button type="button" class="btn-add-user" id="btn-add-user">Добавить</button>
+      </div>
+      <ul class="settings-users-list" id="settings-users-list"></ul>
+    </div>
+  </main>
+
+  <!-- Модальное окно пароля для расписания -->
+  <div id="schedule-password-overlay" class="password-overlay hidden">
+    <div class="password-modal glass-strong">
+      <h3 class="password-title">Вход в расписание</h3>
+      <input type="password" inputmode="numeric" class="password-input" id="schedule-password-input" placeholder="Пароль" maxlength="20" autocomplete="off">
+      <p class="password-error hidden" id="schedule-password-error">Неверный пароль</p>
+      <button type="button" class="password-btn" id="schedule-password-submit">Войти</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
